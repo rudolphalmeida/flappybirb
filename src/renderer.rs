@@ -31,8 +31,8 @@ impl SpriteRenderer {
         }
     }
 
-    pub fn viewport_resized(&mut self, size: (u32, u32)) {
-        println!("{size:?}");
+    pub fn viewport_resized(&mut self, (width, height): (u32, u32)) {
+        self.view = na::Orthographic3::new(0.0, width as f32, 0.0, height as f32, -1.0, 1.0);
     }
 
     pub fn render(&self, frame: &mut Frame, texture: &Texture, position: na::Vector2<f32>, size: na::Vector2<f32>, rotation: Rotation2<f32>) {
