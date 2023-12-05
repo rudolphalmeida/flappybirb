@@ -1,19 +1,24 @@
-use glium::Display;
+use glium::{Display, Frame};
 use glium::glutin::surface::WindowSurface;
+use crate::renderer::{Renderable, SpriteRenderer};
+
+use crate::texture::Texture;
 
 pub struct Background {
-    pub texture: glium::texture::SrgbTexture2d,
+    pub texture: Texture,
 }
 
 impl Background {
     pub fn new(display: &Display<WindowSurface>) -> Self {
-        let image = image::load(std::io::Cursor::new(&include_bytes!("../assets/sprites/background-night.png")), image::ImageFormat::Png).unwrap().to_rgb8();
-        let image_dimensions = image.dimensions();
-        let image = glium::texture::RawImage2d::from_raw_rgb_reversed(&image.into_raw(), image_dimensions);
-        let texture = glium::texture::SrgbTexture2d::new(display, image).unwrap();
-
+        let texture = Texture::from_bytes(include_bytes!("../assets/sprites/background-day.png"), display);
         Self {
             texture
         }
+    }
+}
+
+impl Renderable for Background {
+    fn render(&self, frame: &mut Frame, renderer: &mut SpriteRenderer) {
+        renderer.render(frame, &self.texture, Default::default(), Default::default(), Default::default());
     }
 }
