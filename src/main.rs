@@ -10,6 +10,8 @@ mod texture;
 mod vertex;
 
 fn main() {
+    env_logger::init();
+
     let event_loop = winit::event_loop::EventLoop::new();
     let (window, display) = glium::backend::glutin::SimpleWindowBuilder::new().with_inner_size(500, 500).with_title("Flappy Birb").build(&event_loop);
 

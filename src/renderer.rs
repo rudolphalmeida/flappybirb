@@ -1,5 +1,7 @@
 use glium::{Display, Frame, Program, Surface, uniform, VertexBuffer};
 use glium::glutin::surface::WindowSurface;
+use glium::texture::SrgbTexture2d;
+use glium::uniforms::Sampler;
 use nalgebra as na;
 use nalgebra::RealField;
 use nalgebra_glm as glm;
@@ -33,10 +35,11 @@ impl SpriteRenderer {
     }
 
     pub fn viewport_resized(&mut self, (width, height): (u32, u32)) {
+        log::debug!("Viewport resized to ({width:}, {height:})");
         self.view = glm::ortho(0.0, width as f32, height as f32, 0.0, -1.0, 1.0);
     }
 
-    pub fn render(&self, frame: &mut Frame, texture: &Texture, position: na::Vector2<f32>, size: na::Vector2<f32>, rotation: f32) {
+    pub fn render(&self, frame: &mut Frame, texture: Sampler<'_, SrgbTexture2d>, position: na::Vector2<f32>, size: na::Vector2<f32>, rotation: f32) {
         let indices = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);
 
         let mut model = glm::identity::<f32, 4>();
@@ -51,7 +54,7 @@ impl SpriteRenderer {
 
         let projection_ref = self.view.as_ref();
 
-        let uniforms = uniform! { sprite: texture.texture_id(), model: *model_ref, projection: *projection_ref };
+        let uniforms = uniform! { sprite: texture, model: *model_ref, projection: *projection_ref };
         frame.draw(&self.vertex_buffer, indices, &self.shader_program, &uniforms, &Default::default()).unwrap();
     }
 }

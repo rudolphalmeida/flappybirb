@@ -21,6 +21,6 @@ impl Background {
 impl Renderable for Background {
     fn render(&self, frame: &mut Frame, renderer: &mut SpriteRenderer) {
         let size = frame.get_dimensions();
-        renderer.render(frame, &self.texture, na::Vector2::new(0.0, 0.0), na::Vector2::new(size.0 as f32, size.1 as f32), 0.0);
+        renderer.render(frame, self.texture.texture.sampled().magnify_filter(glium::uniforms::MagnifySamplerFilter::Nearest), na::Vector2::new(0.0, 0.0), na::Vector2::new(size.0 as f32, size.1 as f32), 0.0);
     }
 }
