@@ -1,7 +1,8 @@
 use glium::{Display, Frame, Program, Surface, uniform, VertexBuffer};
 use glium::glutin::surface::WindowSurface;
 use nalgebra as na;
-use nalgebra::Rotation2;
+use nalgebra::RealField;
+use nalgebra_glm as glm;
 use crate::shader::load_shader;
 
 use crate::texture::Texture;
@@ -12,7 +13,7 @@ pub trait Renderable {
 }
 
 pub struct SpriteRenderer {
-    view: na::Orthographic3<f32>,
+    view: na::Matrix4<f32>,
     shader_program: Program,
     vertex_buffer: VertexBuffer<Vertex>,
 }
@@ -21,9 +22,9 @@ impl SpriteRenderer {
     pub fn new(display: &Display<WindowSurface>) -> Self {
         let shader_program = load_shader(display);
         let (width, height) = display.get_framebuffer_dimensions();
-        let view = na::Orthographic3::new(0.0, width as f32, 0.0, height as f32, -1.0, 1.0);
+        let view = glm::ortho(0.0, width as f32, height as f32, 0.0, -1.0, 1.0);
 
-        let shape = Vertex::rectangle();
+        let shape = Vertex::sprite_rectangle();
         let vertex_buffer = glium::VertexBuffer::new(display, &shape).unwrap();
 
         Self {
@@ -32,12 +33,25 @@ impl SpriteRenderer {
     }
 
     pub fn viewport_resized(&mut self, (width, height): (u32, u32)) {
-        self.view = na::Orthographic3::new(0.0, width as f32, 0.0, height as f32, -1.0, 1.0);
+        self.view = glm::ortho(0.0, width as f32, height as f32, 0.0, -1.0, 1.0);
     }
 
-    pub fn render(&self, frame: &mut Frame, texture: &Texture, position: na::Vector2<f32>, size: na::Vector2<f32>, rotation: Rotation2<f32>) {
+    pub fn render(&self, frame: &mut Frame, texture: &Texture, position: na::Vector2<f32>, size: na::Vector2<f32>, rotation: f32) {
         let indices = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);
-        let uniforms = uniform! { sprite: texture.texture_id() };
+
+        let mut model = glm::identity::<f32, 4>();
+        model = glm::translate(&model, &glm::vec3(position.x, position.y, 0.0));
+
+        model = glm::translate(&model, &glm::vec3(0.5 * size.x, 0.5 * size.y, 0.0));
+        model = glm::rotate(&model, rotation * f32::pi() / 180.0, &glm::vec3(0.0, 0.0, 1.0));
+        model = glm::translate(&model, &glm::vec3(-0.5 * size.x, -0.5 * size.y, 0.0));
+
+        let model = glm::scale(&model, &glm::vec3(size.x, size.y, 1.0));
+        let model_ref = model.as_ref();
+
+        let projection_ref = self.view.as_ref();
+
+        let uniforms = uniform! { sprite: texture.texture_id(), model: *model_ref, projection: *projection_ref };
         frame.draw(&self.vertex_buffer, indices, &self.shader_program, &uniforms, &Default::default()).unwrap();
     }
 }

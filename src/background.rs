@@ -1,6 +1,7 @@
-use glium::{Display, Frame};
+use glium::{Display, Frame, Surface};
 use glium::glutin::surface::WindowSurface;
 use crate::renderer::{Renderable, SpriteRenderer};
+use nalgebra as na;
 
 use crate::texture::Texture;
 
@@ -19,6 +20,7 @@ impl Background {
 
 impl Renderable for Background {
     fn render(&self, frame: &mut Frame, renderer: &mut SpriteRenderer) {
-        renderer.render(frame, &self.texture, Default::default(), Default::default(), Default::default());
+        let size = frame.get_dimensions();
+        renderer.render(frame, &self.texture, na::Vector2::new(0.0, 0.0), na::Vector2::new(size.0 as f32, size.1 as f32), 0.0);
     }
 }

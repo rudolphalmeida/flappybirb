@@ -11,15 +11,15 @@ impl Vertex {
         Self { position, uv }
     }
 
-    pub fn rectangle() -> [Vertex; 6] {
+    pub fn sprite_rectangle() -> [Vertex; 6] {
         [
-            Vertex::new([-1.0, 1.0], [0.0, 1.0]),
-            Vertex::new([1.0, 1.0], [1.0, 1.0]),
-            Vertex::new([1.0, -1.0], [1.0, 0.0]),
+            Vertex::new([0.0, 1.0], [0.0, 1.0]),
+            Vertex::new([1.0, 0.0], [1.0, 0.0]),
+            Vertex::new([0.0, 0.0], [0.0, 0.0]),
 
-            Vertex::new([1.0, -1.0], [1.0, 0.0]),
-            Vertex::new([-1.0, -1.0], [0.0, 0.0]),
-            Vertex::new([-1.0, 1.0], [0.0, 1.0]),
+            Vertex::new([0.0, 1.0], [0.0, 1.0]),
+            Vertex::new([1.0, 1.0], [1.0, 1.0]),
+            Vertex::new([1.0, 0.0], [1.0, 0.0])
         ]
     }
 }
