@@ -4,12 +4,14 @@ use winit::event::{Event, KeyboardInput, ScanCode, VirtualKeyCode, WindowEvent};
 use crate::background::Background;
 use crate::gamestate::{GameState, Update};
 use crate::renderer::{Render, SpriteRenderer};
+use crate::ui::Ui;
 
 mod background;
 mod gamestate;
 mod renderer;
 mod shader;
 mod texture;
+mod ui;
 mod vertex;
 
 fn main() {
@@ -23,6 +25,7 @@ fn main() {
     let mut game_state = GameState::default();
 
     let mut background = Background::new(&display);
+    let ui = Ui::new(&display);
 
     let mut previous_frame_time = Instant::now();
 
@@ -51,7 +54,10 @@ fn main() {
             Event::RedrawRequested(_) => {
                 let mut frame = display.draw();
                 frame.clear_color(0.0, 0.0, 0.0, 1.0);
-                background.render(&mut frame, &mut sprite_renderer);
+
+                background.render(&mut frame, &mut sprite_renderer, &game_state);
+                ui.render(&mut frame, &mut sprite_renderer, &game_state);
+
                 frame.finish().unwrap();
             }
             Event::RedrawEventsCleared => window.request_redraw(),

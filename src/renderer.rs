@@ -5,11 +5,12 @@ use glium::uniforms::Sampler;
 use nalgebra as na;
 use nalgebra::RealField;
 use nalgebra_glm as glm;
+use crate::gamestate::GameState;
 use crate::shader::load_shader;
 use crate::vertex::Vertex;
 
 pub trait Render {
-    fn render(&self, frame: &mut Frame, renderer: &mut SpriteRenderer);
+    fn render(&self, frame: &mut Frame, renderer: &mut SpriteRenderer, game_state: &GameState);
 }
 
 pub struct SpriteRenderer {
