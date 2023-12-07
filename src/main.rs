@@ -1,8 +1,8 @@
 use std::time::Instant;
 use glium::Surface;
-use winit::event::{Event, WindowEvent};
+use winit::event::{Event, KeyboardInput, ScanCode, VirtualKeyCode, WindowEvent};
 use crate::background::Background;
-use crate::gamestate::Update;
+use crate::gamestate::{GameState, Update};
 use crate::renderer::{Render, SpriteRenderer};
 
 mod background;
@@ -20,6 +20,8 @@ fn main() {
 
     let mut sprite_renderer = SpriteRenderer::new(&display);
 
+    let mut game_state = GameState::default();
+
     let mut background = Background::new(&display);
 
     let mut previous_frame_time = Instant::now();
@@ -29,13 +31,19 @@ fn main() {
         let dt = frame_time - previous_frame_time;
         previous_frame_time = frame_time;
 
-        background.update(dt);
+        background.update(dt, &mut game_state);
 
         match ev {
             Event::WindowEvent { event, .. } => {
                 match event {
                     WindowEvent::CloseRequested => control_flow.set_exit(),
-                    WindowEvent::KeyboardInput { .. } => {}
+                    WindowEvent::KeyboardInput { input, .. } => {
+                        match game_state {
+                            GameState::Playing(_) => {}
+                            _ if input.virtual_keycode == Some(VirtualKeyCode::Space) => game_state = GameState::Playing(0),
+                            _ => {}
+                        }
+                    }
                     WindowEvent::Resized(size) => sprite_renderer.viewport_resized((size.width, size.height)),
                     _ => {}
                 }
