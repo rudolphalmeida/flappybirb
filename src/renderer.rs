@@ -6,11 +6,9 @@ use nalgebra as na;
 use nalgebra::RealField;
 use nalgebra_glm as glm;
 use crate::shader::load_shader;
-
-use crate::texture::Texture;
 use crate::vertex::Vertex;
 
-pub trait Renderable {
+pub trait Render {
     fn render(&self, frame: &mut Frame, renderer: &mut SpriteRenderer);
 }
 
@@ -39,7 +37,7 @@ impl SpriteRenderer {
         self.view = glm::ortho(0.0, width as f32, height as f32, 0.0, -1.0, 1.0);
     }
 
-    pub fn render(&self, frame: &mut Frame, texture: Sampler<'_, SrgbTexture2d>, position: na::Vector2<f32>, size: na::Vector2<f32>, rotation: f32) {
+    pub fn render(&self, frame: &mut Frame, texture: Sampler<'_, SrgbTexture2d>, position: na::Vector2<f32>, size: na::Vector2<f32>, rotation: f32, pan: na::Vector2<f32>) {
         let indices = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);
 
         let mut model = glm::identity::<f32, 4>();
@@ -54,7 +52,7 @@ impl SpriteRenderer {
 
         let projection_ref = self.view.as_ref();
 
-        let uniforms = uniform! { sprite: texture, model: *model_ref, projection: *projection_ref };
+        let uniforms = uniform! { sprite: texture, model: *model_ref, projection: *projection_ref, pan: *pan.as_ref() };
         frame.draw(&self.vertex_buffer, indices, &self.shader_program, &uniforms, &Default::default()).unwrap();
     }
 }
