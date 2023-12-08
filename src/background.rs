@@ -15,7 +15,7 @@ pub struct Background {
 
 impl Background {
     pub fn new(display: &Display<WindowSurface>) -> Self {
-        let texture = Texture::from_bytes(include_bytes!("../assets/sprites/background-day.png"), display);
+        let texture = Texture::from_bytes(include_bytes!("../assets/sprites/background-night.png"), display);
         Self {
             texture,
             offset: 0.0,

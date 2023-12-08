@@ -1,6 +1,8 @@
 use std::time::Instant;
 use glium::Surface;
-use winit::event::{Event, KeyboardInput, ScanCode, VirtualKeyCode, WindowEvent};
+use winit::dpi::LogicalSize;
+use winit::event::{Event, VirtualKeyCode, WindowEvent};
+use winit::window::Icon;
 use crate::background::Background;
 use crate::gamestate::{GameState, Update};
 use crate::ground::Ground;
@@ -20,7 +22,12 @@ fn main() {
     env_logger::init();
 
     let event_loop = winit::event_loop::EventLoop::new();
-    let (window, display) = glium::backend::glutin::SimpleWindowBuilder::new().with_inner_size(500, 500).with_title("Flappy Birb").build(&event_loop);
+
+    let image = image::load(std::io::Cursor::new(include_bytes!("../assets/favicon.ico")), image::ImageFormat::Ico).unwrap().to_rgba8();
+    let size = image.dimensions();
+    let icon = Icon::from_rgba(image.into_raw(), size.0, size.1).ok();
+    let window_builder = winit::window::WindowBuilder::new().with_inner_size(LogicalSize::new(700.0, 800.0)).with_title("Flappy Birb").with_window_icon(icon);
+    let (window, display) = glium::backend::glutin::SimpleWindowBuilder::new().set_window_builder(window_builder).build(&event_loop);
 
     let mut sprite_renderer = SpriteRenderer::new(&display);
 
