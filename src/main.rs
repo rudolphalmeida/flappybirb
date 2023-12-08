@@ -3,11 +3,13 @@ use glium::Surface;
 use winit::event::{Event, KeyboardInput, ScanCode, VirtualKeyCode, WindowEvent};
 use crate::background::Background;
 use crate::gamestate::{GameState, Update};
+use crate::ground::Ground;
 use crate::renderer::{Render, SpriteRenderer};
 use crate::ui::Ui;
 
 mod background;
 mod gamestate;
+mod ground;
 mod renderer;
 mod shader;
 mod texture;
@@ -25,6 +27,7 @@ fn main() {
     let mut game_state = GameState::default();
 
     let mut background = Background::new(&display);
+    let mut ground = Ground::new(&display);
     let ui = Ui::new(&display);
 
     let mut previous_frame_time = Instant::now();
@@ -35,6 +38,7 @@ fn main() {
         previous_frame_time = frame_time;
 
         background.update(dt, &mut game_state);
+        ground.update(dt, &mut game_state);
 
         match ev {
             Event::WindowEvent { event, .. } => {
@@ -56,6 +60,7 @@ fn main() {
                 frame.clear_color(0.0, 0.0, 0.0, 1.0);
 
                 background.render(&mut frame, &mut sprite_renderer, &game_state);
+                ground.render(&mut frame, &mut sprite_renderer, &game_state);
                 ui.render(&mut frame, &mut sprite_renderer, &game_state);
 
                 frame.finish().unwrap();
