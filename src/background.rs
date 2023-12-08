@@ -3,7 +3,7 @@ use glium::{Display, Frame, Surface};
 use glium::glutin::surface::WindowSurface;
 use crate::renderer::{Render, SpriteRenderer};
 use nalgebra as na;
-use crate::gamestate::{GameState, Update};
+use crate::gamestate::{GameState, PlayState, Update};
 
 use crate::texture::Texture;
 
@@ -25,7 +25,7 @@ impl Background {
 }
 
 impl Render for Background {
-    fn render(&self, frame: &mut Frame, renderer: &mut SpriteRenderer, _game_state: &GameState) {
+    fn render(&self, frame: &mut Frame, renderer: &SpriteRenderer, _game_state: &GameState) {
         let size = frame.get_dimensions();
         let pan = na::Vector2::new(self.offset, 0.0);
         renderer.render(frame, self.texture.texture.sampled().magnify_filter(glium::uniforms::MagnifySamplerFilter::Nearest), na::Vector2::new(0.0, 0.0), na::Vector2::new(size.0 as f32, size.1 as f32), 0.0, pan);
@@ -34,7 +34,7 @@ impl Render for Background {
 
 impl Update for Background {
     fn update(&mut self, dt: Duration, game_state: &mut GameState) {
-        if matches!(game_state, GameState::Playing(_)) {
+        if matches!(game_state.state, PlayState::Playing) {
             self.offset += dt.as_secs_f32() * self.speed;
         }
     }

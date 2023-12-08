@@ -10,7 +10,7 @@ use crate::shader::load_shader;
 use crate::vertex::Vertex;
 
 pub trait Render {
-    fn render(&self, frame: &mut Frame, renderer: &mut SpriteRenderer, game_state: &GameState);
+    fn render(&self, frame: &mut Frame, renderer: &SpriteRenderer, game_state: &GameState);
 }
 
 pub struct SpriteRenderer {

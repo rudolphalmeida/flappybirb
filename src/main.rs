@@ -4,14 +4,16 @@ use winit::dpi::LogicalSize;
 use winit::event::{Event, VirtualKeyCode, WindowEvent};
 use winit::window::Icon;
 use crate::background::Background;
-use crate::gamestate::{GameState, Update};
+use crate::gamestate::{GameState, PlayState, Update};
 use crate::ground::Ground;
+use crate::pipes::Pipes;
 use crate::renderer::{Render, SpriteRenderer};
 use crate::ui::Ui;
 
 mod background;
 mod gamestate;
 mod ground;
+mod pipes;
 mod renderer;
 mod shader;
 mod texture;
@@ -26,7 +28,7 @@ fn main() {
     let image = image::load(std::io::Cursor::new(include_bytes!("../assets/favicon.ico")), image::ImageFormat::Ico).unwrap().to_rgba8();
     let size = image.dimensions();
     let icon = Icon::from_rgba(image.into_raw(), size.0, size.1).ok();
-    let window_builder = winit::window::WindowBuilder::new().with_inner_size(LogicalSize::new(700.0, 800.0)).with_title("Flappy Birb").with_window_icon(icon);
+    let window_builder = winit::window::WindowBuilder::new().with_inner_size(LogicalSize::new(700.0, 970.0)).with_title("Flappy Birb").with_window_icon(icon);
     let (window, display) = glium::backend::glutin::SimpleWindowBuilder::new().set_window_builder(window_builder).build(&event_loop);
 
     let mut sprite_renderer = SpriteRenderer::new(&display);
@@ -34,6 +36,7 @@ fn main() {
     let mut game_state = GameState::default();
 
     let mut background = Background::new(&display);
+    let mut pipes = Pipes::new(&display);
     let mut ground = Ground::new(&display);
     let ui = Ui::new(&display);
 
@@ -45,6 +48,7 @@ fn main() {
         previous_frame_time = frame_time;
 
         background.update(dt, &mut game_state);
+        pipes.update(dt, &mut game_state);
         ground.update(dt, &mut game_state);
 
         match ev {
@@ -52,13 +56,16 @@ fn main() {
                 match event {
                     WindowEvent::CloseRequested => control_flow.set_exit(),
                     WindowEvent::KeyboardInput { input, .. } => {
-                        match game_state {
-                            GameState::Playing(_) => {}
-                            _ if input.virtual_keycode == Some(VirtualKeyCode::Space) => game_state = GameState::Playing(0),
+                        match game_state.state {
+                            PlayState::Playing => {}
+                            _ if input.virtual_keycode == Some(VirtualKeyCode::Space) => game_state.state = PlayState::Playing,
                             _ => {}
                         }
                     }
-                    WindowEvent::Resized(size) => sprite_renderer.viewport_resized((size.width, size.height)),
+                    WindowEvent::Resized(size) => {
+                        game_state.viewport_size = (size.width, size.height);
+                        sprite_renderer.viewport_resized((size.width, size.height));
+                    },
                     _ => {}
                 }
             }
@@ -67,6 +74,7 @@ fn main() {
                 frame.clear_color(0.0, 0.0, 0.0, 1.0);
 
                 background.render(&mut frame, &mut sprite_renderer, &game_state);
+                pipes.render(&mut frame, &mut sprite_renderer, &game_state);
                 ground.render(&mut frame, &mut sprite_renderer, &game_state);
                 ui.render(&mut frame, &mut sprite_renderer, &game_state);
 

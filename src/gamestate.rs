@@ -7,9 +7,16 @@ pub trait Update {
 pub type Score = u32;
 
 #[derive(Debug, Copy, Clone, Default)]
-pub enum GameState {
+pub enum PlayState {
     #[default]
     MainMenu,
-    Playing(Score),
+    Playing,
     GameOver,
+}
+
+#[derive(Debug, Copy, Clone, Default)]
+pub struct GameState {
+    pub state: PlayState,
+    pub score: Score,
+    pub viewport_size: (u32, u32),
 }

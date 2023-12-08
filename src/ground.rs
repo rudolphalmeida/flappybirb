@@ -3,7 +3,7 @@ use glium::{Display, Frame, Surface};
 use glium::glutin::surface::WindowSurface;
 use nalgebra_glm as glm;
 
-use crate::gamestate::{GameState, Update};
+use crate::gamestate::{GameState, PlayState, Update};
 use crate::renderer::{Render, SpriteRenderer};
 use crate::texture::Texture;
 
@@ -25,7 +25,7 @@ impl Ground {
 }
 
 impl Render for Ground {
-    fn render(&self, frame: &mut Frame, renderer: &mut SpriteRenderer, _game_state: &GameState) {
+    fn render(&self, frame: &mut Frame, renderer: &SpriteRenderer, _game_state: &GameState) {
         let frame_size = frame.get_dimensions();
         let pan = glm::vec2(self.offset, 0.0);
         // Cover bottom 20% of window
@@ -37,7 +37,7 @@ impl Render for Ground {
 
 impl Update for Ground {
     fn update(&mut self, dt: Duration, game_state: &mut GameState) {
-        if matches!(game_state, GameState::Playing(_)) {
+        if matches!(game_state.state, PlayState::Playing) {
             self.offset += dt.as_secs_f32() * self.speed;
         }
     }
