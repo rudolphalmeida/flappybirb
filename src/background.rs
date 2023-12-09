@@ -1,5 +1,5 @@
 use crate::gamestate::{GameState, PlayState, Update};
-use crate::renderer::{Render, SpriteRenderer};
+use crate::renderer::{Render, RenderOptions, SpriteRenderer};
 use glium::glutin::surface::WindowSurface;
 use glium::{Display, Frame, Surface};
 use nalgebra as na;
@@ -33,14 +33,12 @@ impl Render for Background {
         let pan = na::Vector2::new(self.offset, 0.0);
         renderer.render(
             frame,
-            self.texture
-                .texture
-                .sampled()
-                .magnify_filter(glium::uniforms::MagnifySamplerFilter::Nearest),
-            na::Vector2::new(0.0, 0.0),
-            na::Vector2::new(size.0 as f32, size.1 as f32),
-            0.0,
-            pan,
+            &self.texture,
+            RenderOptions {
+                size: na::Vector2::new(size.0 as f32, size.1 as f32),
+                pan,
+                ..RenderOptions::default()
+            },
         );
     }
 }

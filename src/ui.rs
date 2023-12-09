@@ -3,7 +3,7 @@ use glium::{Display, Frame, Surface};
 use nalgebra_glm as glm;
 
 use crate::gamestate::{GameState, PlayState};
-use crate::renderer::{Render, SpriteRenderer};
+use crate::renderer::{Render, RenderOptions, SpriteRenderer};
 use crate::texture::Texture;
 
 pub struct Ui {
@@ -31,14 +31,12 @@ impl Render for Ui {
                 let message_position = (size.0 as f32 / 4.0, size.1 as f32 / 4.0);
                 renderer.render(
                     frame,
-                    self.begin_texture
-                        .texture
-                        .sampled()
-                        .magnify_filter(glium::uniforms::MagnifySamplerFilter::Nearest),
-                    glm::vec2(message_position.0, message_position.1),
-                    glm::vec2(message_size.0, message_size.1),
-                    0.0,
-                    Default::default(),
+                    &self.begin_texture,
+                    RenderOptions {
+                        position: glm::vec2(message_position.0, message_position.1),
+                        size: glm::vec2(message_size.0, message_size.1),
+                        ..RenderOptions::default()
+                    },
                 );
             }
             PlayState::Playing => {}

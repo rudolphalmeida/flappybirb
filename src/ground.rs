@@ -4,7 +4,7 @@ use nalgebra_glm as glm;
 use std::time::Duration;
 
 use crate::gamestate::{GameState, PlayState, Update};
-use crate::renderer::{Render, SpriteRenderer};
+use crate::renderer::{Render, RenderOptions, SpriteRenderer};
 use crate::texture::Texture;
 
 pub struct Ground {
@@ -33,14 +33,13 @@ impl Render for Ground {
         let position = glm::vec2(0.0, frame_size.1 as f32 * 0.80);
         renderer.render(
             frame,
-            self.texture
-                .texture
-                .sampled()
-                .magnify_filter(glium::uniforms::MagnifySamplerFilter::Nearest),
-            position,
-            size,
-            0.0,
-            pan,
+            &self.texture,
+            RenderOptions {
+                position,
+                size,
+                pan,
+                ..RenderOptions::default()
+            },
         );
     }
 }

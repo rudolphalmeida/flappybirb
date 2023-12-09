@@ -1,9 +1,8 @@
 use crate::gamestate::GameState;
 use crate::shader::load_shader;
+use crate::texture::Texture;
 use crate::vertex::Vertex;
 use glium::glutin::surface::WindowSurface;
-use glium::texture::SrgbTexture2d;
-use glium::uniforms::Sampler;
 use glium::{uniform, Display, Frame, Program, Surface, VertexBuffer};
 use nalgebra as na;
 use nalgebra::RealField;
@@ -11,6 +10,16 @@ use nalgebra_glm as glm;
 
 pub trait Render {
     fn render(&self, frame: &mut Frame, renderer: &SpriteRenderer, game_state: &GameState);
+}
+
+#[derive(Debug, Copy, Clone, Default)]
+pub struct RenderOptions {
+    pub position: na::Vector2<f32>,
+    pub size: na::Vector2<f32>,
+    pub rotation: f32,
+    pub pan: na::Vector2<f32>,
+    pub flip_vertical: bool,
+    pub flip_horizontal: bool,
 }
 
 pub struct SpriteRenderer {
@@ -43,11 +52,15 @@ impl SpriteRenderer {
     pub fn render(
         &self,
         frame: &mut Frame,
-        texture: Sampler<'_, SrgbTexture2d>,
-        position: na::Vector2<f32>,
-        size: na::Vector2<f32>,
-        rotation: f32,
-        pan: na::Vector2<f32>,
+        texture: &Texture,
+        RenderOptions {
+            position,
+            size,
+            rotation,
+            pan,
+            flip_horizontal,
+            flip_vertical,
+        }: RenderOptions,
     ) {
         let indices = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);
 
@@ -64,10 +77,14 @@ impl SpriteRenderer {
 
         let model = glm::scale(&model, &glm::vec3(size.x, size.y, 1.0));
         let model_ref = model.as_ref();
-
         let projection_ref = self.view.as_ref();
 
-        let uniforms = uniform! { sprite: texture, model: *model_ref, projection: *projection_ref, pan: *pan.as_ref() };
+        let sampler = texture
+            .texture
+            .sampled()
+            .magnify_filter(glium::uniforms::MagnifySamplerFilter::Nearest);
+
+        let uniforms = uniform! { sprite: sampler, model: *model_ref, projection: *projection_ref, pan: *pan.as_ref() };
         frame
             .draw(
                 &self.vertex_buffer,

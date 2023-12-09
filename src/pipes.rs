@@ -5,7 +5,7 @@ use glium::{Display, Frame, Surface};
 use nalgebra_glm as glm;
 
 use crate::gamestate::{GameState, PlayState, Update};
-use crate::renderer::{Render, SpriteRenderer};
+use crate::renderer::{Render, RenderOptions, SpriteRenderer};
 use crate::texture::Texture;
 
 const PIPE_APERTURE_PERCENT: f32 = 0.15; // px
@@ -45,14 +45,13 @@ impl Render for Pipes {
                 let size = glm::vec2(width * 0.10, height * (0.50 - PIPE_APERTURE_PERCENT / 2.0));
                 renderer.render(
                     frame,
-                    self.texture
-                        .texture
-                        .sampled()
-                        .magnify_filter(glium::uniforms::MagnifySamplerFilter::Nearest),
-                    position,
-                    size,
-                    rotation,
-                    Default::default(),
+                    &self.texture,
+                    RenderOptions {
+                        position,
+                        size,
+                        rotation,
+                        ..RenderOptions::default()
+                    },
                 );
 
                 // Bottom pipe
@@ -62,14 +61,13 @@ impl Render for Pipes {
                 let size = glm::vec2(width * 0.10, height * (0.50 - PIPE_APERTURE_PERCENT / 2.0));
                 renderer.render(
                     frame,
-                    self.texture
-                        .texture
-                        .sampled()
-                        .magnify_filter(glium::uniforms::MagnifySamplerFilter::Nearest),
-                    position,
-                    size,
-                    rotation,
-                    Default::default(),
+                    &self.texture,
+                    RenderOptions {
+                        position,
+                        size,
+                        rotation,
+                        ..RenderOptions::default()
+                    },
                 );
 
                 pipe_offset += width * 0.10 + width * PIPE_GAP_PERCENT;
