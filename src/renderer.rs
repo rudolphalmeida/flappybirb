@@ -7,6 +7,7 @@ use glium::{uniform, Display, Frame, Program, Surface, VertexBuffer};
 use nalgebra as na;
 use nalgebra::RealField;
 use nalgebra_glm as glm;
+use nalgebra_glm::TVec2;
 
 pub trait Render {
     fn render(&self, frame: &mut Frame, renderer: &SpriteRenderer, game_state: &GameState);
@@ -79,12 +80,18 @@ impl SpriteRenderer {
         let model_ref = model.as_ref();
         let projection_ref = self.view.as_ref();
 
+        // We are flipping about the axis so use opposite here
+        let flip: TVec2<f32> = glm::vec2(
+            if flip_horizontal { 1.0 } else { 0.0 },
+            if flip_vertical { 1.0 } else { 0.0 },
+        );
+
         let sampler = texture
             .texture
             .sampled()
             .magnify_filter(glium::uniforms::MagnifySamplerFilter::Nearest);
 
-        let uniforms = uniform! { sprite: sampler, model: *model_ref, projection: *projection_ref, pan: *pan.as_ref() };
+        let uniforms = uniform! { sprite: sampler, model: *model_ref, projection: *projection_ref, pan: *pan.as_ref(), flip: *flip.as_ref() };
         frame
             .draw(
                 &self.vertex_buffer,

@@ -40,7 +40,6 @@ impl Render for Pipes {
             let mut pipe_offset = self.left_pipe_offset;
             while pipe_offset < width {
                 // Top pipe
-                let rotation = 180.0;
                 let position = glm::vec2(pipe_offset, 0.0);
                 let size = glm::vec2(width * 0.10, height * (0.50 - PIPE_APERTURE_PERCENT / 2.0));
                 renderer.render(
@@ -49,13 +48,12 @@ impl Render for Pipes {
                     RenderOptions {
                         position,
                         size,
-                        rotation,
+                        flip_vertical: true,
                         ..RenderOptions::default()
                     },
                 );
 
                 // Bottom pipe
-                let rotation = 0.0;
                 let position =
                     glm::vec2(pipe_offset, height * (0.50 + PIPE_APERTURE_PERCENT / 2.0));
                 let size = glm::vec2(width * 0.10, height * (0.50 - PIPE_APERTURE_PERCENT / 2.0));
@@ -65,7 +63,6 @@ impl Render for Pipes {
                     RenderOptions {
                         position,
                         size,
-                        rotation,
                         ..RenderOptions::default()
                     },
                 );
