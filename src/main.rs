@@ -1,14 +1,14 @@
-use std::time::Instant;
-use glium::Surface;
-use winit::dpi::LogicalSize;
-use winit::event::{Event, VirtualKeyCode, WindowEvent};
-use winit::window::Icon;
 use crate::background::Background;
 use crate::gamestate::{GameState, PlayState, Update};
 use crate::ground::Ground;
 use crate::pipes::Pipes;
 use crate::renderer::{Render, SpriteRenderer};
 use crate::ui::Ui;
+use glium::Surface;
+use std::time::Instant;
+use winit::dpi::LogicalSize;
+use winit::event::{Event, VirtualKeyCode, WindowEvent};
+use winit::window::Icon;
 
 mod background;
 mod gamestate;
@@ -25,11 +25,21 @@ fn main() {
 
     let event_loop = winit::event_loop::EventLoop::new();
 
-    let image = image::load(std::io::Cursor::new(include_bytes!("../assets/favicon.ico")), image::ImageFormat::Ico).unwrap().to_rgba8();
+    let image = image::load(
+        std::io::Cursor::new(include_bytes!("../assets/favicon.ico")),
+        image::ImageFormat::Ico,
+    )
+    .unwrap()
+    .to_rgba8();
     let size = image.dimensions();
     let icon = Icon::from_rgba(image.into_raw(), size.0, size.1).ok();
-    let window_builder = winit::window::WindowBuilder::new().with_inner_size(LogicalSize::new(700.0, 970.0)).with_title("Flappy Birb").with_window_icon(icon);
-    let (window, display) = glium::backend::glutin::SimpleWindowBuilder::new().set_window_builder(window_builder).build(&event_loop);
+    let window_builder = winit::window::WindowBuilder::new()
+        .with_inner_size(LogicalSize::new(700.0, 970.0))
+        .with_title("Flappy Birb")
+        .with_window_icon(icon);
+    let (window, display) = glium::backend::glutin::SimpleWindowBuilder::new()
+        .set_window_builder(window_builder)
+        .build(&event_loop);
 
     let mut sprite_renderer = SpriteRenderer::new(&display);
 
@@ -52,31 +62,29 @@ fn main() {
         ground.update(dt, &mut game_state);
 
         match ev {
-            Event::WindowEvent { event, .. } => {
-                match event {
-                    WindowEvent::CloseRequested => control_flow.set_exit(),
-                    WindowEvent::KeyboardInput { input, .. } => {
-                        match game_state.state {
-                            PlayState::Playing => {}
-                            _ if input.virtual_keycode == Some(VirtualKeyCode::Space) => game_state.state = PlayState::Playing,
-                            _ => {}
-                        }
+            Event::WindowEvent { event, .. } => match event {
+                WindowEvent::CloseRequested => control_flow.set_exit(),
+                WindowEvent::KeyboardInput { input, .. } => match game_state.state {
+                    PlayState::Playing => {}
+                    _ if input.virtual_keycode == Some(VirtualKeyCode::Space) => {
+                        game_state.state = PlayState::Playing
                     }
-                    WindowEvent::Resized(size) => {
-                        game_state.viewport_size = (size.width, size.height);
-                        sprite_renderer.viewport_resized((size.width, size.height));
-                    },
                     _ => {}
+                },
+                WindowEvent::Resized(size) => {
+                    game_state.viewport_size = (size.width, size.height);
+                    sprite_renderer.viewport_resized((size.width, size.height));
                 }
-            }
+                _ => {}
+            },
             Event::RedrawRequested(_) => {
                 let mut frame = display.draw();
                 frame.clear_color(0.0, 0.0, 0.0, 1.0);
 
-                background.render(&mut frame, &mut sprite_renderer, &game_state);
-                pipes.render(&mut frame, &mut sprite_renderer, &game_state);
-                ground.render(&mut frame, &mut sprite_renderer, &game_state);
-                ui.render(&mut frame, &mut sprite_renderer, &game_state);
+                background.render(&mut frame, &sprite_renderer, &game_state);
+                pipes.render(&mut frame, &sprite_renderer, &game_state);
+                ground.render(&mut frame, &sprite_renderer, &game_state);
+                ui.render(&mut frame, &sprite_renderer, &game_state);
 
                 frame.finish().unwrap();
             }
