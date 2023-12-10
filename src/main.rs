@@ -1,4 +1,5 @@
 use crate::background::Background;
+use crate::bird::Bird;
 use crate::gamestate::{GameState, PlayState, Update};
 use crate::ground::Ground;
 use crate::pipes::Pipes;
@@ -11,6 +12,7 @@ use winit::event::{Event, VirtualKeyCode, WindowEvent};
 use winit::window::Icon;
 
 mod background;
+mod bird;
 mod gamestate;
 mod ground;
 mod pipes;
@@ -36,6 +38,7 @@ fn main() {
     let window_builder = winit::window::WindowBuilder::new()
         .with_inner_size(LogicalSize::new(700.0, 970.0))
         .with_title("Flappy Birb")
+        .with_resizable(false)
         .with_window_icon(icon);
     let (window, display) = glium::backend::glutin::SimpleWindowBuilder::new()
         .set_window_builder(window_builder)
@@ -48,6 +51,7 @@ fn main() {
     let mut background = Background::new(&display);
     let mut pipes = Pipes::new(&display);
     let mut ground = Ground::new(&display);
+    let mut bird = Bird::new(&display);
     let ui = Ui::new(&display);
 
     let mut previous_frame_time = Instant::now();
@@ -60,6 +64,7 @@ fn main() {
         background.update(dt, &mut game_state);
         pipes.update(dt, &mut game_state);
         ground.update(dt, &mut game_state);
+        bird.update(dt, &mut game_state);
 
         match ev {
             Event::WindowEvent { event, .. } => match event {
@@ -84,6 +89,7 @@ fn main() {
                 background.render(&mut frame, &sprite_renderer, &game_state);
                 pipes.render(&mut frame, &sprite_renderer, &game_state);
                 ground.render(&mut frame, &sprite_renderer, &game_state);
+                bird.render(&mut frame, &sprite_renderer, &game_state);
                 ui.render(&mut frame, &sprite_renderer, &game_state);
 
                 frame.finish().unwrap();

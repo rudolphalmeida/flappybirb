@@ -8,8 +8,8 @@ use crate::gamestate::{GameState, PlayState, Update};
 use crate::renderer::{Render, RenderOptions, SpriteRenderer};
 use crate::texture::Texture;
 
-const PIPE_APERTURE_PERCENT: f32 = 0.15; // px
-const PIPE_GAP_PERCENT: f32 = 0.20; // px
+const PIPE_APERTURE_PERCENT: f32 = 0.15;
+const PIPE_GAP_PERCENT: f32 = 0.20;
 
 pub struct Pipes {
     texture: Texture,
