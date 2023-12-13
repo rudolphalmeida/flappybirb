@@ -61,16 +61,13 @@ fn main() {
         let dt = frame_time - previous_frame_time;
         previous_frame_time = frame_time;
 
-        background.update(dt, &mut game_state);
-        pipes.update(dt, &mut game_state);
-        ground.update(dt, &mut game_state);
-        bird.update(dt, &mut game_state);
-
         match ev {
             Event::WindowEvent { event, .. } => match event {
                 WindowEvent::CloseRequested => control_flow.set_exit(),
                 WindowEvent::KeyboardInput { input, .. } => match game_state.state {
-                    PlayState::Playing => {}
+                    PlayState::Playing if input.virtual_keycode == Some(VirtualKeyCode::Space) => {
+                        game_state.fly_up = true
+                    }
                     _ if input.virtual_keycode == Some(VirtualKeyCode::Space) => {
                         game_state.state = PlayState::Playing
                     }
@@ -97,5 +94,12 @@ fn main() {
             Event::RedrawEventsCleared => window.request_redraw(),
             _ => {}
         }
+
+        background.update(dt, &mut game_state);
+        pipes.update(dt, &mut game_state);
+        ground.update(dt, &mut game_state);
+        bird.update(dt, &mut game_state);
+
+        game_state.fly_up = false;
     });
 }

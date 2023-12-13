@@ -19,4 +19,5 @@ pub struct GameState {
     pub state: PlayState,
     pub score: Score,
     pub viewport_size: (u32, u32),
+    pub fly_up: bool,
 }

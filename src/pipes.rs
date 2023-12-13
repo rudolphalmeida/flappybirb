@@ -27,7 +27,7 @@ impl Pipes {
         Self {
             texture,
             left_pipe_offset,
-            speed: 0.1,
+            speed: 0.15,
         }
     }
 }

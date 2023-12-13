@@ -19,7 +19,7 @@ impl Ground {
         Self {
             texture,
             offset: 0.0,
-            speed: 0.1,
+            speed: 0.15,
         }
     }
 }
