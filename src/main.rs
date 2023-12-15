@@ -1,12 +1,13 @@
 use crate::background::Background;
 use crate::bird::Bird;
-use crate::gamestate::{GameState, PlayState, Update};
+use crate::gamestate::{GameState, Hittable, PlayState, Update};
 use crate::ground::Ground;
 use crate::pipes::Pipes;
 use crate::renderer::{Render, SpriteRenderer};
 use crate::ui::Ui;
 use glium::Surface;
 use std::time::Instant;
+use log::log;
 use winit::dpi::LogicalSize;
 use winit::event::{Event, VirtualKeyCode, WindowEvent};
 use winit::window::Icon;
@@ -99,6 +100,13 @@ fn main() {
         pipes.update(dt, &mut game_state);
         ground.update(dt, &mut game_state);
         bird.update(dt, &mut game_state);
+
+        let bird_bb = bird.bounding_boxes(&game_state)[0];
+        let ground_bb = ground.bounding_boxes(&game_state)[0];
+
+        if matches!(game_state.state, PlayState::Playing) && bird_bb.intersect(&ground_bb) {
+            game_state.state = PlayState::GameOver;
+        }
 
         game_state.fly_up = false;
     });

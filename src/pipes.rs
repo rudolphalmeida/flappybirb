@@ -4,7 +4,7 @@ use glium::glutin::surface::WindowSurface;
 use glium::{Display, Frame, Surface};
 use nalgebra_glm as glm;
 
-use crate::gamestate::{GameState, PlayState, Update};
+use crate::gamestate::{BoundingBox, GameState, Hittable, PlayState, Update};
 use crate::renderer::{Render, RenderOptions, SpriteRenderer};
 use crate::texture::Texture;
 
@@ -82,5 +82,11 @@ impl Update for Pipes {
                 self.left_pipe_offset += width * 0.10 + width * PIPE_GAP_PERCENT;
             }
         }
+    }
+}
+
+impl Hittable for Pipes {
+    fn bounding_boxes(&self, game_state: &GameState) -> Vec<BoundingBox> {
+        todo!()
     }
 }

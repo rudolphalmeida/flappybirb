@@ -3,7 +3,7 @@ use glium::{Display, Frame, Surface};
 use nalgebra_glm as glm;
 use std::time::Duration;
 
-use crate::gamestate::{GameState, PlayState, Update};
+use crate::gamestate::{BoundingBox, GameState, Hittable, PlayState, Update};
 use crate::renderer::{Render, RenderOptions, SpriteRenderer};
 use crate::texture::Texture;
 
@@ -25,12 +25,9 @@ impl Ground {
 }
 
 impl Render for Ground {
-    fn render(&self, frame: &mut Frame, renderer: &SpriteRenderer, _game_state: &GameState) {
-        let frame_size = frame.get_dimensions();
+    fn render(&self, frame: &mut Frame, renderer: &SpriteRenderer, game_state: &GameState) {
         let pan = glm::vec2(self.offset, 0.0);
-        // Cover bottom 20% of window
-        let size = glm::vec2(frame_size.0 as f32, frame_size.1 as f32 * 0.20);
-        let position = glm::vec2(0.0, frame_size.1 as f32 * 0.80);
+        let BoundingBox { position, size } = self.bounding_boxes(game_state)[0];
         renderer.render(
             frame,
             &self.texture,
@@ -49,5 +46,15 @@ impl Update for Ground {
         if matches!(game_state.state, PlayState::Playing) {
             self.offset += dt.as_secs_f32() * self.speed;
         }
+    }
+}
+
+impl Hittable for Ground {
+    fn bounding_boxes(&self, game_state: &GameState) -> Vec<BoundingBox> {
+        // Cover bottom 20% of window
+        let viewport_size = game_state.viewport_size;
+        let size = glm::vec2(viewport_size.0 as f32, viewport_size.1 as f32 * 0.20);
+        let position = glm::vec2(0.0, viewport_size.1 as f32 * 0.80);
+        vec![BoundingBox {position, size}]
     }
 }

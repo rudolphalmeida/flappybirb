@@ -5,7 +5,7 @@ use glium::{Display, Frame};
 use nalgebra as na;
 use nalgebra_glm as glm;
 
-use crate::gamestate::{GameState, PlayState, Update};
+use crate::gamestate::{BoundingBox, GameState, Hittable, PlayState, Update};
 use crate::renderer::{Render, RenderOptions, SpriteRenderer};
 use crate::texture::Texture;
 
@@ -66,11 +66,8 @@ impl Bird {
 
 impl Render for Bird {
     fn render(&self, frame: &mut Frame, renderer: &SpriteRenderer, game_state: &GameState) {
-        if matches!(game_state.state, PlayState::Playing) {
-            let (width, height) = self.textures[FLAP_CYCLE[self.flap_index] as usize].size;
-
-            let size = na::Vector2::new(width as f32, height as f32) * 1.5;
-            let position = glm::vec2(game_state.viewport_size.0 as f32 * 0.25, self.y_position);
+        if matches!(game_state.state, PlayState::Playing) || matches!(game_state.state, PlayState::GameOver) {
+            let BoundingBox { position, size } = self.bounding_boxes(game_state)[0];
 
             renderer.render(
                 frame,
@@ -96,12 +93,25 @@ impl Update for Bird {
                 self.y_velocity += 1.0;
             };
             self.y_position += self.y_velocity * dt.as_secs_f32();
-
-            self.flap_duration += dt;
-            if self.flap_duration >= Duration::from_secs_f32(MAX_FLAP_DURATION) {
-                self.flap_index = (self.flap_index + 1) % 4;
-                self.flap_duration -= Duration::from_secs_f32(MAX_FLAP_DURATION);
-            }
         }
+
+        self.flap_duration += dt;
+        if self.flap_duration >= Duration::from_secs_f32(MAX_FLAP_DURATION) {
+            self.flap_index = (self.flap_index + 1) % 4;
+            self.flap_duration -= Duration::from_secs_f32(MAX_FLAP_DURATION);
+        }
+    }
+}
+
+impl Hittable for Bird {
+    fn bounding_boxes(&self, game_state: &GameState) -> Vec<BoundingBox> {
+        let (width, height) = self.textures[FLAP_CYCLE[self.flap_index] as usize].size;
+        let size = na::Vector2::new(width as f32, height as f32) * 1.5;
+        let position = glm::vec2(game_state.viewport_size.0 as f32 * 0.25, self.y_position);
+
+        vec![BoundingBox {
+            position,
+            size,
+        }]
     }
 }
