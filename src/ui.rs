@@ -16,15 +16,19 @@ impl Ui {
     pub fn new(display: &Display<WindowSurface>) -> Self {
         let begin_texture =
             Texture::from_bytes(include_bytes!("../assets/sprites/message.png"), display);
-        let gameover_texture = Texture::from_bytes(include_bytes!("../assets/sprites/gameover.png"), display);
+        let gameover_texture =
+            Texture::from_bytes(include_bytes!("../assets/sprites/gameover.png"), display);
 
-        Self { begin_texture, gameover_texture }
+        Self {
+            begin_texture,
+            gameover_texture,
+        }
     }
 }
 
 impl Render for Ui {
     fn render(&self, frame: &mut Frame, renderer: &SpriteRenderer, game_state: &GameState) {
-        let size = frame.get_dimensions();
+        let size = game_state.viewport_size;
         match game_state.state {
             PlayState::MainMenu => {
                 let message_size = (size.0 as f32 / 2.0, size.1 as f32 / 2.0);
@@ -39,22 +43,25 @@ impl Render for Ui {
                         ..RenderOptions::default()
                     },
                 );
-            },
-            PlayState::Playing => {},
+            }
+            PlayState::Playing => {}
             PlayState::GameOver => {
-                let message_size = (size.0 as f32 / 4.0, size.1 as f32 / 4.0);
-                let message_position = (size.0 as f32 / 2.0, size.1 as f32 / 2.0);
+                let texture_size = glm::vec2(
+                    self.gameover_texture.size.0 as f32,
+                    self.gameover_texture.size.1 as f32,
+                ) * 2.0;
+                let message_position = (size.0 as f32 / 4.0, size.1 as f32 / 2.0);
 
                 renderer.render(
                     frame,
                     &self.gameover_texture,
                     RenderOptions {
                         position: glm::vec2(message_position.0, message_position.1),
-                        size: glm::vec2(message_size.0, message_size.1),
+                        size: texture_size,
                         ..RenderOptions::default()
                     },
                 );
-            },
+            }
         };
     }
 }

@@ -10,7 +10,7 @@ out vec4 FragColor;
 
 void main() {
     FragColor = texture(sprite, (sprite_uv - flip) + pan);
-    if (FragColor.a <= 0.0) {
+    if (FragColor.a <= 0.5) {
         discard;
     }
 }
