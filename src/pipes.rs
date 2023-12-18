@@ -87,6 +87,27 @@ impl Update for Pipes {
 
 impl Hittable for Pipes {
     fn bounding_boxes(&self, game_state: &GameState) -> Vec<BoundingBox> {
-        todo!()
+        let (width, height) = game_state.viewport_size;
+        let (width, height) = (width as f32, height as f32);
+
+        let mut bounding_boxes = Vec::new();
+
+        let mut pipe_offset = self.left_pipe_offset;
+
+        while pipe_offset < width {
+            // Top pipe
+            let position = glm::vec2(pipe_offset, 0.0);
+            let size = glm::vec2(width * 0.10, height * (0.50 - PIPE_APERTURE_PERCENT / 2.0));
+            bounding_boxes.push(BoundingBox { position, size });
+
+            // Bottom pipe
+            let position = glm::vec2(pipe_offset, height * (0.50 + PIPE_APERTURE_PERCENT / 2.0));
+            let size = glm::vec2(width * 0.10, height * (0.50 - PIPE_APERTURE_PERCENT / 2.0));
+            bounding_boxes.push(BoundingBox { position, size });
+
+            pipe_offset += width * 0.10 + width * PIPE_GAP_PERCENT;
+        }
+
+        bounding_boxes
     }
 }

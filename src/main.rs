@@ -103,8 +103,14 @@ fn main() {
 
         let bird_bb = bird.bounding_boxes(&game_state)[0];
         let ground_bb = ground.bounding_boxes(&game_state)[0];
+        let pipe_intersect = pipes
+            .bounding_boxes(&game_state)
+            .iter()
+            .any(|bb| bb.intersect(&bird_bb));
 
-        if matches!(game_state.state, PlayState::Playing) && bird_bb.intersect(&ground_bb) {
+        if matches!(game_state.state, PlayState::Playing)
+            && (bird_bb.intersect(&ground_bb) || pipe_intersect)
+        {
             game_state.state = PlayState::GameOver;
         }
 
