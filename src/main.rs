@@ -8,7 +8,7 @@ use crate::ui::Ui;
 use glium::Surface;
 use std::time::Instant;
 use winit::dpi::LogicalSize;
-use winit::event::{Event, VirtualKeyCode, WindowEvent};
+use winit::event::{ElementState, Event, KeyboardInput, VirtualKeyCode, WindowEvent};
 use winit::window::Icon;
 
 mod background;
@@ -65,12 +65,24 @@ fn main() {
         match ev {
             Event::WindowEvent { event, .. } => match event {
                 WindowEvent::CloseRequested => control_flow.set_exit(),
-                WindowEvent::KeyboardInput { input, .. } => match game_state.state {
-                    PlayState::Playing if input.virtual_keycode == Some(VirtualKeyCode::Space) => {
-                        game_state.fly_up = true
+                WindowEvent::KeyboardInput {
+                    input:
+                        KeyboardInput {
+                            virtual_keycode,
+                            state,
+                            ..
+                        },
+                    ..
+                } => match game_state.state {
+                    PlayState::Playing if virtual_keycode == Some(VirtualKeyCode::Space) => {
+                        game_state.fly_up = true;
                     }
-                    _ if input.virtual_keycode == Some(VirtualKeyCode::Space) => {
-                        game_state.state = PlayState::Playing
+                    _ if virtual_keycode == Some(VirtualKeyCode::Space)
+                        && state == ElementState::Released =>
+                    {
+                        bird.reset(&game_state);
+                        pipes.reset(&game_state);
+                        game_state.state = PlayState::Playing;
                     }
                     _ => {}
                 },

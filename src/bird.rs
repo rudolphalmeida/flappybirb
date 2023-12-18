@@ -62,6 +62,15 @@ impl Bird {
             rotation,
         }
     }
+
+    pub fn reset(&mut self, game_state: &GameState) {
+        let height = game_state.viewport_size.1 as f32;
+        self.y_position = height * 0.50;
+        self.y_velocity = 0.0;
+        self.flap_index = 0;
+        self.flap_duration = Duration::from_secs_f32(0.0);
+        self.rotation = 0.0;
+    }
 }
 
 impl Render for Bird {

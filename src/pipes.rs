@@ -30,6 +30,10 @@ impl Pipes {
             speed: 0.15,
         }
     }
+
+    pub fn reset(&mut self, game_state: &GameState) {
+        self.left_pipe_offset = game_state.viewport_size.0 as f32 * 0.50;
+    }
 }
 
 impl Render for Pipes {
