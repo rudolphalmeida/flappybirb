@@ -1,10 +1,11 @@
 use glium::glutin::surface::WindowSurface;
-use glium::{Display, Frame, Surface};
+use glium::{Display, Frame};
 use nalgebra_glm as glm;
 
 use crate::gamestate::{GameState, PlayState};
 use crate::renderer::{Render, RenderOptions, SpriteRenderer};
 use crate::texture::Texture;
+use crate::util::{horizontally_centered_position, vertically_centered_position};
 
 pub struct Ui {
     begin_texture: Texture,
@@ -28,36 +29,42 @@ impl Ui {
 
 impl Render for Ui {
     fn render(&self, frame: &mut Frame, renderer: &SpriteRenderer, game_state: &GameState) {
-        let size = game_state.viewport_size;
+        let viewport_size = game_state.viewport_size;
+        let viewport_size = glm::vec2(viewport_size.0 as f32, viewport_size.1 as f32);
         match game_state.state {
             PlayState::MainMenu => {
-                let message_size = (size.0 as f32 / 2.0, size.1 as f32 / 2.0);
-                let message_position = (size.0 as f32 / 4.0, size.1 as f32 / 4.0);
+                let texture_size = self.begin_texture.size;
+                let size = glm::vec2(texture_size.0 as f32, texture_size.1 as f32) * 2.0;
+                let position = glm::vec2(
+                    vertically_centered_position(viewport_size, size),
+                    horizontally_centered_position(viewport_size, size),
+                );
 
                 renderer.render(
                     frame,
                     &self.begin_texture,
                     RenderOptions {
-                        position: glm::vec2(message_position.0, message_position.1),
-                        size: glm::vec2(message_size.0, message_size.1),
+                        position,
+                        size,
                         ..RenderOptions::default()
                     },
                 );
             }
             PlayState::Playing => {}
             PlayState::GameOver => {
-                let texture_size = glm::vec2(
-                    self.gameover_texture.size.0 as f32,
-                    self.gameover_texture.size.1 as f32,
-                ) * 2.0;
-                let message_position = (size.0 as f32 / 4.0, size.1 as f32 / 2.0);
+                let texture_size = self.gameover_texture.size;
+                let size = glm::vec2(texture_size.0 as f32, texture_size.1 as f32) * 2.0;
+                let position = glm::vec2(
+                    vertically_centered_position(viewport_size, size),
+                    horizontally_centered_position(viewport_size, size),
+                );
 
                 renderer.render(
                     frame,
                     &self.gameover_texture,
                     RenderOptions {
-                        position: glm::vec2(message_position.0, message_position.1),
-                        size: texture_size,
+                        position,
+                        size,
                         ..RenderOptions::default()
                     },
                 );

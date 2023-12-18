@@ -7,7 +7,6 @@ use crate::renderer::{Render, SpriteRenderer};
 use crate::ui::Ui;
 use glium::Surface;
 use std::time::Instant;
-use log::log;
 use winit::dpi::LogicalSize;
 use winit::event::{Event, VirtualKeyCode, WindowEvent};
 use winit::window::Icon;
@@ -21,6 +20,7 @@ mod renderer;
 mod shader;
 mod texture;
 mod ui;
+mod util;
 mod vertex;
 
 fn main() {
