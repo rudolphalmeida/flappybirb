@@ -1,5 +1,5 @@
 use glium::glutin::surface::WindowSurface;
-use glium::{Display, Frame, Surface};
+use glium::{Display, Frame};
 use nalgebra_glm as glm;
 use std::time::Duration;
 
@@ -55,6 +55,6 @@ impl Hittable for Ground {
         let viewport_size = game_state.viewport_size;
         let size = glm::vec2(viewport_size.0 as f32, viewport_size.1 as f32 * 0.20);
         let position = glm::vec2(0.0, viewport_size.1 as f32 * 0.80);
-        vec![BoundingBox {position, size}]
+        vec![BoundingBox { position, size }]
     }
 }

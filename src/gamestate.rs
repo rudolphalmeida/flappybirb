@@ -14,18 +14,14 @@ pub struct BoundingBox {
 
 impl BoundingBox {
     pub fn intersect(&self, other: &BoundingBox) -> bool {
-        /// if (X1+W1<X2 or X2+W2<X1 or Y1+H1<Y2 or Y2+H2<Y1):
+        // if (X1+W1<X2 or X2+W2<X1 or Y1+H1<Y2 or Y2+H2<Y1):
         //     Intersection = Empty
         // else:
         //     Intersection = Not Empty
-        if (self.position.x + self.size.x < other.position.x) ||
-            (other.position.x + other.size.x < self.position.x) ||
-            (self.position.y + self.size.y < other.position.y) ||
-            (other.position.y + other.size.y < self.position.y) {
-            false
-        } else {
-            true
-        }
+        !((self.position.x + self.size.x < other.position.x)
+            || (other.position.x + other.size.x < self.position.x)
+            || (self.position.y + self.size.y < other.position.y)
+            || (other.position.y + other.size.y < self.position.y))
     }
 }
 
