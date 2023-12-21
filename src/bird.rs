@@ -10,6 +10,8 @@ use crate::renderer::{Render, RenderOptions, SpriteRenderer};
 use crate::texture::Texture;
 
 const MAX_FLAP_DURATION: f32 = 0.25;
+const GRAVITY: f32 = 100.0;
+const STRENGTH: f32 = 150.0;
 
 #[derive(Debug, Copy, Clone)]
 enum Flap {
@@ -46,7 +48,7 @@ impl Bird {
             ),
         ];
 
-        let (width, height) = display.get_framebuffer_dimensions();
+        let (_width, height) = display.get_framebuffer_dimensions();
         let y_position = height as f32 * 0.50;
         let y_velocity = 0.0;
         let flap = 0;
@@ -75,7 +77,9 @@ impl Bird {
 
 impl Render for Bird {
     fn render(&self, frame: &mut Frame, renderer: &SpriteRenderer, game_state: &GameState) {
-        if matches!(game_state.state, PlayState::Playing) || matches!(game_state.state, PlayState::GameOver) {
+        if matches!(game_state.state, PlayState::Playing)
+            || matches!(game_state.state, PlayState::GameOver)
+        {
             let BoundingBox { position, size } = self.bounding_boxes(game_state)[0];
 
             renderer.render(
@@ -96,11 +100,11 @@ impl Update for Bird {
     fn update(&mut self, dt: Duration, game_state: &mut GameState) {
         if matches!(game_state.state, PlayState::Playing) {
             if game_state.fly_up {
-                self.y_velocity = -250.0;
+                self.y_velocity = -STRENGTH;
                 self.rotation = -20.0;
-            } else {
-                self.y_velocity += 1.0;
-            };
+            }
+
+            self.y_velocity += GRAVITY * dt.as_secs_f32();
             self.y_position += self.y_velocity * dt.as_secs_f32();
         }
 
@@ -118,9 +122,6 @@ impl Hittable for Bird {
         let size = na::Vector2::new(width as f32, height as f32) * 1.5;
         let position = glm::vec2(game_state.viewport_size.0 as f32 * 0.25, self.y_position);
 
-        vec![BoundingBox {
-            position,
-            size,
-        }]
+        vec![BoundingBox { position, size }]
     }
 }
