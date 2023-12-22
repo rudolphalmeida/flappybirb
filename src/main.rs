@@ -1,6 +1,7 @@
 use std::time::Instant;
 
 use glium::Surface;
+use soloud::{audio, FromExt, Soloud};
 use winit::dpi::LogicalSize;
 use winit::event::{ElementState, Event, KeyboardInput, VirtualKeyCode, WindowEvent};
 use winit::event_loop::ControlFlow;
@@ -50,6 +51,12 @@ fn main() {
 
     let mut egui_glium = egui_glium::EguiGlium::new(&display, &window, &event_loop);
     let mut show_debug = false;
+
+    let sl = Soloud::default().unwrap();
+    let hit = audio::Wav::from_mem(include_bytes!("../assets/audio/hit.wav")).unwrap();
+    let _die = audio::Wav::from_mem(include_bytes!("../assets/audio/die.wav")).unwrap();
+    let _swoosh = audio::Wav::from_mem(include_bytes!("../assets/audio/swoosh.wav")).unwrap();
+    let wing = audio::Wav::from_mem(include_bytes!("../assets/audio/wing.wav")).unwrap();
 
     let mut sprite_renderer = SpriteRenderer::new(&display);
 
@@ -167,6 +174,9 @@ fn main() {
                     } => match game_state.state {
                         PlayState::Playing if virtual_keycode == Some(VirtualKeyCode::Space) => {
                             game_state.fly_up = true;
+                            if sl.voice_count() == 0 {
+                                sl.play(&wing);
+                            }
                         }
                         _ if virtual_keycode == Some(VirtualKeyCode::Space)
                             && state == ElementState::Released =>
@@ -215,6 +225,7 @@ fn main() {
             if matches!(game_state.state, PlayState::Playing)
                 && (bird_bb.intersect(&ground_bb) || pipe_intersect)
             {
+                sl.play(&hit);
                 game_state.state = PlayState::GameOver;
             }
         }
