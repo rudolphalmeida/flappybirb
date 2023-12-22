@@ -20,10 +20,19 @@ enum Flap {
     Up = 2,
 }
 
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub enum BirdColor {
+    Blue = 0,
+    Red = 1,
+    Yellow = 2,
+}
+
 const FLAP_CYCLE: [Flap; 4] = [Flap::Down, Flap::Mid, Flap::Up, Flap::Mid];
 
 pub struct Bird {
-    textures: [Texture; 3],
+    pub color: BirdColor,
+    textures: [[Texture; 3]; 3],
+
     pub y_position: f32,
     pub y_velocity: f32,
     flap_index: usize,
@@ -36,19 +45,50 @@ pub struct Bird {
 
 impl Bird {
     pub fn new(display: &Display<WindowSurface>) -> Self {
+        let color = BirdColor::Blue;
         let textures = [
-            Texture::from_bytes(
-                include_bytes!("../assets/sprites/bluebird-downflap.png"),
-                display,
-            ),
-            Texture::from_bytes(
-                include_bytes!("../assets/sprites/bluebird-midflap.png"),
-                display,
-            ),
-            Texture::from_bytes(
-                include_bytes!("../assets/sprites/bluebird-upflap.png"),
-                display,
-            ),
+            [
+                Texture::from_bytes(
+                    include_bytes!("../assets/sprites/bluebird-downflap.png"),
+                    display,
+                ),
+                Texture::from_bytes(
+                    include_bytes!("../assets/sprites/bluebird-midflap.png"),
+                    display,
+                ),
+                Texture::from_bytes(
+                    include_bytes!("../assets/sprites/bluebird-upflap.png"),
+                    display,
+                ),
+            ],
+            [
+                Texture::from_bytes(
+                    include_bytes!("../assets/sprites/redbird-downflap.png"),
+                    display,
+                ),
+                Texture::from_bytes(
+                    include_bytes!("../assets/sprites/redbird-midflap.png"),
+                    display,
+                ),
+                Texture::from_bytes(
+                    include_bytes!("../assets/sprites/redbird-upflap.png"),
+                    display,
+                ),
+            ],
+            [
+                Texture::from_bytes(
+                    include_bytes!("../assets/sprites/yellowbird-downflap.png"),
+                    display,
+                ),
+                Texture::from_bytes(
+                    include_bytes!("../assets/sprites/yellowbird-midflap.png"),
+                    display,
+                ),
+                Texture::from_bytes(
+                    include_bytes!("../assets/sprites/yellowbird-upflap.png"),
+                    display,
+                ),
+            ],
         ];
 
         let (_width, height) = display.get_framebuffer_dimensions();
@@ -62,6 +102,7 @@ impl Bird {
         let upwards_force = UPWARDS_FORCE;
 
         Self {
+            color,
             textures,
             y_position,
             y_velocity,
@@ -92,7 +133,7 @@ impl Render for Bird {
 
             renderer.render(
                 frame,
-                &self.textures[FLAP_CYCLE[self.flap_index] as usize],
+                &self.textures[self.color as usize][FLAP_CYCLE[self.flap_index] as usize],
                 RenderOptions {
                     position,
                     size,
@@ -126,7 +167,8 @@ impl Update for Bird {
 
 impl Hittable for Bird {
     fn bounding_boxes(&self, game_state: &GameState) -> Vec<BoundingBox> {
-        let (width, height) = self.textures[FLAP_CYCLE[self.flap_index] as usize].size;
+        let (width, height) =
+            self.textures[self.color as usize][FLAP_CYCLE[self.flap_index] as usize].size;
         let size = na::Vector2::new(width as f32, height as f32) * 1.5;
         let position = glm::vec2(game_state.viewport_size.0 as f32 * 0.25, self.y_position);
 

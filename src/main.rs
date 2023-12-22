@@ -7,7 +7,7 @@ use winit::event_loop::ControlFlow;
 use winit::window::Icon;
 
 use crate::background::{Background, TextureVariant};
-use crate::bird::Bird;
+use crate::bird::{Bird, BirdColor};
 use crate::gamestate::{GameState, Hittable, PlayState, Update};
 use crate::ground::Ground;
 use crate::pipes::Pipes;
@@ -102,6 +102,24 @@ fn main() {
 
                         ui.label("Upward Force");
                         ui.add(egui::DragValue::new(&mut bird.upwards_force).speed(0.1));
+
+                        egui::ComboBox::from_label("Color")
+                            .selected_text(match bird.color {
+                                BirdColor::Blue => "Blue",
+                                BirdColor::Red => "Red",
+                                BirdColor::Yellow => "Yellow",
+                            })
+                            .show_ui(ui, |ui| {
+                                if ui.button("Blue").clicked() {
+                                    bird.color = BirdColor::Blue;
+                                }
+                                if ui.button("Red").clicked() {
+                                    bird.color = BirdColor::Red;
+                                }
+                                if ui.button("Yellow").clicked() {
+                                    bird.color = BirdColor::Yellow;
+                                }
+                            });
 
                         ui.separator();
                         if ui.button("Reset game").clicked() {
