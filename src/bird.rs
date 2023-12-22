@@ -10,8 +10,8 @@ use crate::renderer::{Render, RenderOptions, SpriteRenderer};
 use crate::texture::Texture;
 
 const MAX_FLAP_DURATION: f32 = 0.25;
-const GRAVITY: f32 = 100.0;
-const STRENGTH: f32 = 150.0;
+const DEFAULT_GRAVITY: f32 = 600.0;
+const UPWARDS_FORCE: f32 = 300.0;
 
 #[derive(Debug, Copy, Clone)]
 enum Flap {
@@ -24,11 +24,14 @@ const FLAP_CYCLE: [Flap; 4] = [Flap::Down, Flap::Mid, Flap::Up, Flap::Mid];
 
 pub struct Bird {
     textures: [Texture; 3],
-    y_position: f32,
-    y_velocity: f32,
+    pub y_position: f32,
+    pub y_velocity: f32,
     flap_index: usize,
     flap_duration: Duration,
     rotation: f32,
+
+    pub gravity: f32,
+    pub upwards_force: f32,
 }
 
 impl Bird {
@@ -55,6 +58,9 @@ impl Bird {
         let flap_duration = Duration::from_secs_f32(0.0);
         let rotation = 0.0;
 
+        let gravity = DEFAULT_GRAVITY;
+        let upwards_force = UPWARDS_FORCE;
+
         Self {
             textures,
             y_position,
@@ -62,6 +68,8 @@ impl Bird {
             flap_index: flap,
             flap_duration,
             rotation,
+            gravity,
+            upwards_force,
         }
     }
 
@@ -100,11 +108,11 @@ impl Update for Bird {
     fn update(&mut self, dt: Duration, game_state: &mut GameState) {
         if matches!(game_state.state, PlayState::Playing) {
             if game_state.fly_up {
-                self.y_velocity = -STRENGTH;
+                self.y_velocity = -self.upwards_force;
                 self.rotation = -20.0;
             }
 
-            self.y_velocity += GRAVITY * dt.as_secs_f32();
+            self.y_velocity += self.gravity * dt.as_secs_f32();
             self.y_position += self.y_velocity * dt.as_secs_f32();
         }
 

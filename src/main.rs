@@ -6,7 +6,7 @@ use winit::event::{ElementState, Event, KeyboardInput, VirtualKeyCode, WindowEve
 use winit::event_loop::ControlFlow;
 use winit::window::Icon;
 
-use crate::background::Background;
+use crate::background::{Background, TextureVariant};
 use crate::bird::Bird;
 use crate::gamestate::{GameState, Hittable, PlayState, Update};
 use crate::ground::Ground;
@@ -49,10 +49,12 @@ fn main() {
         .build(&event_loop);
 
     let mut egui_glium = egui_glium::EguiGlium::new(&display, &window, &event_loop);
+    let mut show_debug = false;
 
     let mut sprite_renderer = SpriteRenderer::new(&display);
 
     let mut game_state = GameState::default();
+    let mut hit_detection = true;
 
     let mut background = Background::new(&display);
     let mut pipes = Pipes::new(&display);
@@ -68,24 +70,51 @@ fn main() {
         previous_frame_time = frame_time;
 
         let mut redraw = || {
-            let repaint_after = egui_glium.run(&window, |egui_ctx| {
-                egui::SidePanel::left("my_side_panel").show(egui_ctx, |ui| {
-                    ui.heading("Hello World!");
-                    if ui.button("Quit").clicked() {
-                        control_flow.set_exit();
-                    }
-                });
+            let repaint_after = egui_glium.run(&window, |ctx| {
+                if !show_debug {
+                    return;
+                }
+
+                egui::Window::new("Options")
+                    .resizable(false)
+                    .min_width(450.0)
+                    .show(ctx, |ui| {
+                        egui::ComboBox::from_label("Background style")
+                            .selected_text(if background.texture_variant == TextureVariant::Night {
+                                "Night"
+                            } else {
+                                "Day"
+                            })
+                            .show_ui(ui, |ui| {
+                                if ui.button("Night").clicked() {
+                                    background.texture_variant = TextureVariant::Night;
+                                }
+                                if ui.button("Day").clicked() {
+                                    background.texture_variant = TextureVariant::Day;
+                                }
+                            });
+                        ui.separator();
+                        ui.checkbox(&mut hit_detection, "Hit Detection");
+
+                        ui.separator();
+                        ui.label("Gravity");
+                        ui.add(egui::DragValue::new(&mut bird.gravity).speed(0.1));
+
+                        ui.label("Upward Force");
+                        ui.add(egui::DragValue::new(&mut bird.upwards_force).speed(0.1));
+
+                        ui.separator();
+                        if ui.button("Reset game").clicked() {
+                            game_state.state = PlayState::MainMenu;
+                            bird.reset(&game_state);
+                            pipes.reset(&game_state);
+                        }
+                    });
             });
 
-            *control_flow = if repaint_after.is_zero() {
+            if repaint_after.is_zero() {
                 window.request_redraw();
-                ControlFlow::Poll
-            } else if let Some(repaint_after_instant) =
-                std::time::Instant::now().checked_add(repaint_after)
-            {
-                ControlFlow::WaitUntil(repaint_after_instant)
-            } else {
-                ControlFlow::Wait
+                *control_flow = ControlFlow::Poll;
             };
 
             {
@@ -128,6 +157,11 @@ fn main() {
                             pipes.reset(&game_state);
                             game_state.state = PlayState::Playing;
                         }
+                        _ if virtual_keycode == Some(VirtualKeyCode::F5)
+                            && state == ElementState::Released =>
+                        {
+                            show_debug = !show_debug;
+                        }
                         _ => {}
                     },
                     WindowEvent::Resized(size) => {
@@ -152,17 +186,19 @@ fn main() {
         ground.update(dt, &mut game_state);
         bird.update(dt, &mut game_state);
 
-        let bird_bb = bird.bounding_boxes(&game_state)[0];
-        let ground_bb = ground.bounding_boxes(&game_state)[0];
-        let pipe_intersect = pipes
-            .bounding_boxes(&game_state)
-            .iter()
-            .any(|bb| bb.intersect(&bird_bb));
+        if hit_detection {
+            let bird_bb = bird.bounding_boxes(&game_state)[0];
+            let ground_bb = ground.bounding_boxes(&game_state)[0];
+            let pipe_intersect = pipes
+                .bounding_boxes(&game_state)
+                .iter()
+                .any(|bb| bb.intersect(&bird_bb));
 
-        if matches!(game_state.state, PlayState::Playing)
-            && (bird_bb.intersect(&ground_bb) || pipe_intersect)
-        {
-            game_state.state = PlayState::GameOver;
+            if matches!(game_state.state, PlayState::Playing)
+                && (bird_bb.intersect(&ground_bb) || pipe_intersect)
+            {
+                game_state.state = PlayState::GameOver;
+            }
         }
 
         game_state.fly_up = false;

@@ -7,22 +7,37 @@ use std::time::Duration;
 
 use crate::texture::Texture;
 
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub enum TextureVariant {
+    Day,
+    Night,
+}
+
 pub struct Background {
-    texture: Texture,
+    night_texture: Texture,
+    day_texture: Texture,
     offset: f32,
     speed: f32,
+    pub texture_variant: TextureVariant,
 }
 
 impl Background {
     pub fn new(display: &Display<WindowSurface>) -> Self {
-        let texture = Texture::from_bytes(
+        let night_texture = Texture::from_bytes(
             include_bytes!("../assets/sprites/background-night.png"),
             display,
         );
+        let day_texture = Texture::from_bytes(
+            include_bytes!("../assets/sprites/background-day.png"),
+            display,
+        );
+
         Self {
-            texture,
+            night_texture,
+            day_texture,
             offset: 0.0,
             speed: 0.085,
+            texture_variant: TextureVariant::Night,
         }
     }
 }
@@ -33,7 +48,11 @@ impl Render for Background {
         let pan = na::Vector2::new(self.offset, 0.0);
         renderer.render(
             frame,
-            &self.texture,
+            if self.texture_variant == TextureVariant::Night {
+                &self.night_texture
+            } else {
+                &self.day_texture
+            },
             RenderOptions {
                 size: na::Vector2::new(size.0 as f32, size.1 as f32),
                 pan,
