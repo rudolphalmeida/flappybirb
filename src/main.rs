@@ -204,8 +204,8 @@ fn main() {
                     window.request_redraw();
                 }
             }
-            Event::RedrawEventsCleared if cfg!(target_os = "windows") => redraw(),
-            Event::RedrawRequested(_) if !cfg!(target_os = "windows") => redraw(),
+            Event::RedrawEventsCleared => redraw(),
+            Event::RedrawRequested(_) => redraw(),
             _ => {}
         }
 
