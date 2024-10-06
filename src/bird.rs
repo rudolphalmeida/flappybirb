@@ -151,10 +151,10 @@ impl Update for Bird {
             if game_state.fly_up {
                 self.y_velocity = -self.upwards_force;
                 self.rotation = -20.0;
+            } else {
+                self.y_velocity += self.gravity * dt.as_secs_f32();
+                self.y_position += self.y_velocity * dt.as_secs_f32();
             }
-
-            self.y_velocity += self.gravity * dt.as_secs_f32();
-            self.y_position += self.y_velocity * dt.as_secs_f32();
         }
 
         self.flap_duration += dt;
